@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const Joi = require('joi');
 function generateAuthToken({id,name,email,role}) {
   const token = jwt.sign({
-    _id: id,
+    id: id,
     name: name,
     email:email,
     role:role,

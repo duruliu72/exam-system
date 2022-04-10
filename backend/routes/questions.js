@@ -13,16 +13,17 @@ router.post("/", (req, res) => {
     const { error } = validateQuestion(req.body);
     if (error) return res.status(400).send(error.details[0].message);
     let question_bank_id = req.body.question_bank_id;
+    let question_paper_id = req.body.question_paper_id;
     let question_name = req.body.question_name;
     let answer_take_time = req.body.answer_take_time;
     let question_type = req.body.question_type;
-    let createdAt=new Date();
-    var sql = "INSERT INTO question_mst (question_bank_id,question_name,answer_take_time,question_type,createdAt) VALUES (?,?,?,?,?)";
-    getCon().query(sql,[question_bank_id,question_name,answer_take_time,question_type,createdAt],function(err, result){
+    let created_at=new Date();
+    var sql = "INSERT INTO question_mst (question_bank_id,question_paper_id,question_name,answer_take_time,question_type,created_at) VALUES (?,?,?,?,?,?)";
+    getCon().query(sql,[question_bank_id,question_paper_id,question_name,answer_take_time,question_type,created_at],function(err, result){
         if (err) throw err;
         getCon().query("SELECT * FROM question_mst WHERE id=?",[result.insertId], function (err, result, fields) {
             if (err) throw err;
-            return res.send(_.pick(result[0], ["id", "question_bank_id","question_name","answer_take_time","question_type"]));
+            return res.send(_.pick(result[0], ["id", "question_bank_id","question_paper_id","question_name","answer_take_time","question_type"]));
         });
     })
 })

@@ -1,7 +1,7 @@
 const express = require('express');
 const router=express.Router();
 const _ = require('lodash');
-const {validateQuestionBank } = require("../models/questionBank");
+const {validateQuestionPaper } = require("../models/questionPaper");
 const {getCon} = require("../dbCon");
 router.get('/',(req, res) => {
     getCon().query("SELECT id,take_duration,created_by FROM question_bank ORDER BY id DESC",(err, questionBanks)=>{
@@ -10,23 +10,24 @@ router.get('/',(req, res) => {
     });
 });
 router.post("/", (req, res) => {
-    const { error } = validateQuestionBank(req.body);
+    const { error } = validateQuestionPaper(req.body);
     if (error) return res.status(400).send(error.details[0].message);
-    let take_duration = req.body.take_duration;
+    let question_bank_id = req.body.question_bank_id;
     let name = req.body.name;
+    let duration = req.body.duration;
     let created_by = req.body.created_by;
     let created_at=new Date();
-    var sql = "INSERT INTO question_bank (name,take_duration,created_by,created_at) VALUES (?,?,?,?)";
-    getCon().query(sql,[name,take_duration,created_by,created_at],function(err, result){
+    var sql = "INSERT INTO question_paper (question_bank_id,name,duration,created_by,created_at) VALUES (?,?,?,?,?)";
+    getCon().query(sql,[question_bank_id,name,duration,created_by,created_at],function(err, result){
         if (err) throw err;
-        getCon().query("SELECT * FROM question_bank WHERE id=?",[result.insertId], function (err, result, fields) {
+        getCon().query("SELECT * FROM question_paper WHERE id=?",[result.insertId], function (err, result, fields) {
             if (err) throw err;
-            return res.send(_.pick(result[0], ["id","take_duration","created_by"]));
+            return res.send(_.pick(result[0], ["id","question_bank_id","name","duration","created_by"]));
         });
     })
 })
 router.put('/:id', async (req, res) => {
-    const { error } = validateQuestionBank(req.body); 
+    const { error } = validateQuestionPaper(req.body); 
     if (error) return res.status(400).send(error.details[0].message);
     let question_bank_id=req.params.id;
     let take_duration = req.body.take_duration;
