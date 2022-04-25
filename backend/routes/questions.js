@@ -4,7 +4,15 @@ const _ = require('lodash');
 const {validateQuestion } = require("../models/question");
 const {getCon} = require("../dbCon");
 router.get('/',(req, res) => {
-    getCon().query("SELECT id,question_bank_id,question_name,answer_take_time,question_type FROM question_mst ORDER BY id DESC",(err, questions)=>{
+    getCon().query("SELECT id,question_bank_id,question_paper_id,question_name,answer_take_time,question_type FROM question_mst where question_bank_id=? && question_paper_id=? ORDER BY id DESC",(err, questions)=>{
+        if (err) throw err;
+        res.send(questions);
+    });
+});
+router.post('/bybankAndpaper',(req, res) => {
+    let question_bank_id = req.body.question_bank_id;
+    let question_paper_id = req.body.question_paper_id;
+    getCon().query("SELECT id,question_bank_id,question_paper_id,question_name,answer_take_time,question_type FROM question_mst where question_bank_id=? && question_paper_id=? ORDER BY id DESC",[question_bank_id,question_paper_id],(err, questions)=>{
         if (err) throw err;
         res.send(questions);
     });
@@ -32,6 +40,7 @@ router.put('/:id', async (req, res) => {
     if (error) return res.status(400).send(error.details[0].message);
     let question_id=req.params.id;
     let question_bank_id = req.body.question_bank_id;
+    let question_paper_id = req.body.question_paper_id;
     let question_name = req.body.question_name;
     let answer_take_time = req.body.answer_take_time;
     let question_type = req.body.question_type;
@@ -41,11 +50,11 @@ router.put('/:id', async (req, res) => {
         if(result.length == 0){
             return res.status(404).send('The queston with the given ID was not found.');
         } 
-        getCon().query("UPDATE question_mst SET question_bank_id = ? ,question_name = ?,answer_take_time=?,question_type=? WHERE id = ?",[question_bank_id,question_name,answer_take_time,question_type,question_id],function (err, result) {
+        getCon().query("UPDATE question_mst SET question_name = ?,answer_take_time=?,question_type=? WHERE id = ? && question_bank_id=? && question_paper_id=?",[question_name,answer_take_time,question_type,question_id,question_bank_id,question_paper_id],function (err, result) {
             if (err) throw err;
             getCon().query("SELECT * FROM question_mst WHERE id=?",[question_id], function (err, result, fields) {
                 if (err) throw err;
-                return res.send(_.pick(result[0], ["id", "question_bank_id","question_name","answer_take_time","question_type"]));
+                return res.send(_.pick(result[0], ["id", "question_bank_id","question_paper_id","question_name","answer_take_time","question_type"]));
             });
         });
     
@@ -61,7 +70,7 @@ router.put('/:id', async (req, res) => {
         }
         getCon().query("DELETE FROM question_mst WHERE id = ?",[question_id],function(err, delres) {
             if (err) throw err;
-            return res.send(_.pick(result[0], ["id", "question_bank_id","question_name","answer_take_time","question_type"]));
+            return res.send(_.pick(result[0], ["id", "question_bank_id","question_paper_id","question_name","answer_take_time","question_type"]));
         })
     })
   });
@@ -73,7 +82,7 @@ router.put('/:id', async (req, res) => {
         if(result.length == 0){
             return res.status(404).send('The question with the given ID was not found.');
         }
-        return res.send(_.pick(result[0], ["id", "question_bank_id","question_name","answer_take_time","question_type"]));
+        return res.send(_.pick(result[0], ["id", "question_bank_id","question_paper_id","question_name","answer_take_time","question_type"]));
     })
   });  
 module.exports = router;

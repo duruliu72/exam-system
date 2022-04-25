@@ -5,7 +5,7 @@ function setCon(){
         host:"localhost",
         user:"root",
         password:"",
-        database:"myqbank22",
+        database:"exam_sys",
     });
     connection.connect(function(err){
         if(err) throw err;
